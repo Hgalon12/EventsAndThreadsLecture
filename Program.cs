@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Channels;
 
 namespace CoreCollectionsAsync
 {
@@ -105,7 +106,50 @@ namespace CoreCollectionsAsync
 
         static void Main(string[] args)
         {
-            DemoAsync().Wait();
+            //ClassesForExercise.ElectricCar car = new ClassesForExercise.ElectricCar(1);
+            //car.OnCarShutDown += () => Console.WriteLine("Shut Down!");
+
+
+            Task[] arr = new Task[20];
+            for (int i = 0; i < 20; i++)
+            {
+                ClassesForExercise.ElectricCar car=new ClassesForExercise.ElectricCar(i); 
+                car.OnCarShutDown += () => Console.WriteLine("Shut Down!");
+                arr[i] = Task.Run(car.StartEngine);
+            }
+
+            Task.WhenAll(arr).Wait();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            Console.WriteLine("Finish");
+
+
+            
+
+            //DemoAsync().Wait();
             //1. Prepare Omlette with no progress bar
             //DelegateAndEventsDemo.RunDemo_1();
 

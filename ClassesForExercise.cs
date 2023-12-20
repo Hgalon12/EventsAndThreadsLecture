@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace ClassesForExercise
@@ -14,7 +15,11 @@ namespace ClassesForExercise
         //Add events to the class to notify upon threshhold reached and shut down!
         #region events
         #endregion
-        private int Threshold { get; }
+        public delegate void ReachThreshold(Object sender, int percent);
+        public event ReachThreshold OnThreshold;
+        public delegate void ShutDown(Object sender);
+        public event ShutDown OnShutDown;
+         private int Threshold { get; }
         public int Capacity { get; set; }
         public int Percent
         {
@@ -34,7 +39,20 @@ namespace ClassesForExercise
             Capacity -= r.Next(50, 150);
             //Add calls to the events based on the capacity and threshhold
             #region Fire Events
+            if (Capacity < Threshold)
+            {
+                if (OnThreshold != null)
+                    OnThreshold(this, Percent);
+            }
             #endregion
+             if (Capacity <= 0)
+            {
+                if(OnShutDown != null)
+                    OnShutDown(this);
+                
+            }
+           
+
         }
 
     }
@@ -46,6 +64,8 @@ namespace ClassesForExercise
 
         //Add event to notify when the car is shut down
         public event Action OnCarShutDown;
+        
+        
 
         public ElectricCar(int id)
         {
@@ -53,6 +73,13 @@ namespace ClassesForExercise
             Bat = new Battery();
             #region Register to battery events
             #endregion
+            Bat.OnThreshold += (sender, pecent) => Console.WriteLine($"Battery reached threshold {pecent}");
+            Bat.OnShutDown += (sender) =>
+            {
+                Console.WriteLine(" Battery reached  to Zero , car is shutting down ");
+                if (OnCarShutDown != null)
+                    OnCarShutDown();
+            };
         }
         public void StartEngine()
         {
